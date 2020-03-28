@@ -1,5 +1,5 @@
 FROM debian:latest
-MAINTAINER Florian Strasser <flo.strasser@gmx.net>
+MAINTAINER Florian Strasser <flowlee@gmx.net>
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV NAT 1
