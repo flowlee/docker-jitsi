@@ -16,7 +16,7 @@ Choose port to forward to (example `8443`):
 
     docker run -d --name jitsi -p 8443:443 -p 5280:5280 -p 10000:10000/udp -v /path/to/your/config_dir:/config -e HOSTNAME=meet.example.com flowlee/jitsi
 
-Example nginx config:
+Example nginx config on docker host:
 
 ```
 server {
