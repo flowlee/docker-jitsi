@@ -28,16 +28,18 @@ fi
 
 if [ "$NEW_HOSTNAME" -eq 1 ]; then
 	echo "jicofo jitsi-videobridge/jvb-hostname string $HOSTNAME" | debconf-set-selections
+	rm /etc/jitsi/jicofo/sip-communicator.properties
 	rm /etc/jitsi/videobridge/sip-communicator.properties
 	rm /etc/jitsi/meet/*-config.js
 	dpkg-reconfigure jicofo
 	dpkg-reconfigure jitsi-meet-web-config
 	dpkg-reconfigure jitsi-meet-prosody
-	dpkg-reconfigure jitsi-videobridge
+	dpkg-reconfigure jitsi-videobridge2
 	UPDATED_CONFIG=1
 fi
 
 if [ ! -z "$HOSTNAME" ] && [ "$NAT" -eq 1 ] && [ "$EXISTING_NAT" -eq 0 ]; then
+	sed -i "s/org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/# org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/" /etc/jitsi/videobridge/sip-communicator.properties
 	echo "org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS=$HOSTNAME" >> /etc/jitsi/videobridge/sip-communicator.properties
 	echo "org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)" >> /etc/jitsi/videobridge/sip-communicator.properties
 	UPDATED_CONFIG=1
@@ -49,6 +51,7 @@ if [ "$NEW_HOSTNAME" -eq 1 ] && [ "$NAT" -eq 1 ] && [ "$EXISTING_NAT" -eq 1 ]; t
 fi
 
 if [ "$NAT" -eq 0 ] && [ "$EXISTING_NAT" -eq 1 ]; then
+	sed -i "s/# org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/" /etc/jitsi/videobridge/sip-communicator.properties
 	sed '/^org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS=/d' /etc/jitsi/videobridge/sip-communicator.properties
 	sed '/^org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS=/d' /etc/jitsi/videobridge/sip-communicator.properties
 	UPDATED_CONFIG=1
@@ -65,7 +68,7 @@ else
 fi
 
 service prosody restart
-service jitsi-videobridge restart
+service jitsi-videobridge2 restart
 service jicofo restart
 service nginx restart
 
