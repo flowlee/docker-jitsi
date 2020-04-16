@@ -3,19 +3,20 @@ MAINTAINER Florian Strasser <flowlee@gmx.net>
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV NAT 1
+ENV HOSTNAME meet.example.com
 
 RUN apt-get update && \
 	apt-get install -y wget gnupg2 debconf-utils
 
 # set values for noninteractive install
 RUN echo "jitsi-meet-web-config jitsi-meet/cert-choice select Generate a new self-signed certificate (You will later get a chance to obtain a Let's encrypt certificate)" | debconf-set-selections
-RUN echo "jicofo jitsi-videobridge/jvb-hostname string meet.example.com" | debconf-set-selections
+RUN echo "jicofo jitsi-videobridge/jvb-hostname string $HOSTNAME" | debconf-set-selections
 
 # install jitsi
 RUN echo 'deb http://download.jitsi.org unstable/' >> /etc/apt/sources.list && \
 	wget -qO - https://download.jitsi.org/jitsi-key.gpg.key | apt-key add - && \
 	apt-get update && \
-	apt-get -y --no-install-recommends install jitsi-meet && \
+	apt-get -y install jitsi-meet && \
 	apt-get clean
 
 # prepare log file
