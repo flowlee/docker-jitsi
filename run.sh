@@ -1,20 +1,25 @@
 #!/bin/bash
 
-# set hostname, regenerate secrets
-echo PURGE | debconf-communicate jitsi-meet-web-config
-echo PURGE | debconf-communicate jitsi-meet-prosody
-echo PURGE | debconf-communicate jitsi-videobridge2
-echo PURGE | debconf-communicate jicofo
+# regenerate secrets, set hostname
+
+echo RESET jicofo/jicofosecret | debconf-communicate jitsi-meet-prosody
+echo RESET jitsi-videobridge/jvbsecret | debconf-communicate jitsi-meet-prosody
+echo RESET jitsi-meet-prosody/turn-secret | debconf-communicate jitsi-meet-prosody
+echo RESET jicofo/jicofo-authpassword | debconf-communicate jitsi-meet-prosody
+
 echo "jitsi-meet-web-config jitsi-videobridge/jvb-hostname string $HOSTNAME" | debconf-set-selections
+
 rm /etc/jitsi/videobridge/config
 rm /etc/jitsi/videobridge/sip-communicator.properties
 rm /etc/jitsi/jicofo/config
 rm /etc/jitsi/jicofo/sip-communicator.properties
 rm /etc/jitsi/meet/*-config.js
+rm -rf /var/lib/prosody/*
+
 dpkg-reconfigure jitsi-meet-web-config
-dpkg-reconfigure dpkg-reconfigure
 dpkg-reconfigure jitsi-videobridge2
 dpkg-reconfigure jicofo
+dpkg-reconfigure jitsi-meet-prosody
 
 if [ "$NAT" -eq 1 ]; then
 	sed -i "s/org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/# org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/" /etc/jitsi/videobridge/sip-communicator.properties
