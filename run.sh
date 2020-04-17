@@ -21,6 +21,8 @@ dpkg-reconfigure jitsi-videobridge2
 dpkg-reconfigure jicofo
 dpkg-reconfigure jitsi-meet-prosody
 
+echo "org.jitsi.videobridge.AUTHORIZED_SOURCE_REGEXP=focus@auth.$HOSTNAME/.*" >> /etc/jitsi/videobridge/sip-communicator.properties
+
 if [ "$NAT" -eq 1 ]; then
 	sed -i "s/org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/# org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES/" /etc/jitsi/videobridge/sip-communicator.properties
 	echo "org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS=$HOSTNAME" >> /etc/jitsi/videobridge/sip-communicator.properties
