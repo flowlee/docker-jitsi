@@ -19,9 +19,23 @@ RUN echo 'deb http://download.jitsi.org unstable/' >> /etc/apt/sources.list && \
 	apt-get -y --no-install-recommends install jitsi-meet && \
 	apt-get clean
 
+# delete secrets from debconf
+RUN echo RESET jicofo/jicofosecret | debconf-communicate jitsi-meet-prosody && \
+	echo RESET jitsi-videobridge/jvbsecret | debconf-communicate jitsi-meet-prosody && \
+	echo RESET jitsi-meet-prosody/turn-secret | debconf-communicate jitsi-meet-prosody && \
+	echo RESET jicofo/jicofo-authpassword | debconf-communicate jitsi-meet-prosody
+
+# delete config files
+RUN rm /etc/jitsi/videobridge/config && \
+	rm /etc/jitsi/videobridge/sip-communicator.properties && \
+	rm /etc/jitsi/jicofo/config && \
+	rm /etc/jitsi/jicofo/sip-communicator.properties && \
+	rm /etc/jitsi/meet/*-config.js && \
+	rm -rf /var/lib/prosody/*
+
 # prepare log file
-RUN touch /var/log/jitsi/jvb.log
-RUN chown jvb:jitsi /var/log/jitsi/jvb.log
+RUN touch /var/log/jitsi/jvb.log && \
+	chown jvb:jitsi /var/log/jitsi/jvb.log
 
 # ports to forward: 443 5280 10000
 EXPOSE 80 443 4443 5280 5347
